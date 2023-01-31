@@ -5,23 +5,25 @@ import TodoListItem from '../todo-list-item/todo-list-item';
 import './todo-list.css';
 
 const TodoList = ({ todos, onDeleted, completeTodo, editLabelTodo }) => {
-  const elements = todos.map((item) => {
-    const { id, label, created, done } = item;
-    return (
-      <TodoListItem
-        key={id}
-        id={id}
-        label={label}
-        created={created}
-        done={done}
-        onDeleted={() => onDeleted(id)}
-        completeTodo={() => completeTodo(id)}
-        editLabelTodo={(text) => editLabelTodo(id, text)}
-      />
-    );
-  });
+  if (todos.length) {
+    const elements = todos.map((item) => {
+      const { id, label, created, done } = item;
+      return (
+        <TodoListItem
+          key={id}
+          id={id}
+          label={label}
+          created={created}
+          done={done}
+          onDeleted={() => onDeleted(id)}
+          completeTodo={() => completeTodo(id)}
+          editLabelTodo={(text) => editLabelTodo(id, text)}
+        />
+      );
+    });
 
-  return <ul className="todo-list">{elements}</ul>;
+    return <ul className="todo-list">{elements}</ul>;
+  } else return <h3>No todo(s) yet, Use the form to create new todos</h3>;
 };
 
 TodoList.propTypes = {

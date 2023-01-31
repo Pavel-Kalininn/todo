@@ -20,7 +20,7 @@ export default class NewToDo extends React.Component {
     const { label } = this.state;
     const { addTodo } = this.props;
     evt.preventDefault();
-    if (label) {
+    if (label && label.trim()) {
       addTodo(label);
       this.setState({
         label: '',
@@ -39,5 +39,5 @@ export default class NewToDo extends React.Component {
 }
 
 NewToDo.propTypes = {
-  addTask: PropTypes.func.isRequired,
+  addTodo: PropTypes.func.isRequired,
 };

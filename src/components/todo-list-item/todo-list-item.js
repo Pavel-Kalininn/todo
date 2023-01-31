@@ -22,7 +22,7 @@ export default class TodoListItem extends React.Component {
     const { labelState } = this.state;
     const { editLabelTodo } = this.props;
     evt.preventDefault();
-    if (labelState) {
+    if (labelState && labelState.trim()) {
       editLabelTodo(labelState);
       this.setState({
         editing: false,

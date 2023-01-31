@@ -9,6 +9,7 @@ const Footer = ({ done, chooseFilter, deleteCompletedTodo, filter }) => {
     <footer className="footer">
       <span className="todo-count">{done} items left</span>
       <TodoFilter chooseFilter={chooseFilter} filter={filter} />
+      {console.log(filter)}
       <button type="button" className="clear-completed" onClick={deleteCompletedTodo}>
         Clear completed
       </button>

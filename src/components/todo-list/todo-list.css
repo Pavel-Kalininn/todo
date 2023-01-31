@@ -9,3 +9,9 @@
   width: 100%;
   border-bottom: 1px solid #ededed;
 }
+
+h3 {
+  margin: 0;
+  background-color: white;
+  padding: 5px 15px;
+}

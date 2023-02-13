@@ -1,6 +1,8 @@
 import React from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import PropTypes from 'prop-types';
+
+import Timer from '../timer/timer';
 import './todo-list-item.css';
 
 export default class TodoListItem extends React.Component {
@@ -9,7 +11,38 @@ export default class TodoListItem extends React.Component {
     this.state = {
       labelState: props.label,
       editing: false,
+      timerId: null,
     };
+  }
+
+  componentDidUpdate(prevProps) {
+    const { timer, done } = this.props;
+    const { timerId } = this.state;
+    if ((prevProps.timer !== timer && timer <= 0) || done) {
+      clearInterval(timerId);
+    }
+  }
+
+  startTimer = () => {
+    const { subTime, timer } = this.props;
+    const { timerId } = this.state;
+    if (!timerId && timer > 0) {
+      this.setState({
+        timerId: setInterval(() => {
+          subTime();
+        }, 1000),
+      });
+    }
+  };
+
+  stopTimer = () => {
+    const { timerId } = this.state;
+    clearInterval(timerId);
+    this.setState({ timerId: null });
+  };
+
+  componentWillUnmount() {
+    this.stopTimer();
   }
 
   onLabelChange = (evt) => {
@@ -46,7 +79,7 @@ export default class TodoListItem extends React.Component {
   };
 
   render() {
-    const { label, done, created, id, onDeleted, completeTodo } = this.props;
+    const { label, done, created, id, onDeleted, completeTodo, timer } = this.props;
     const { labelState } = this.state;
     const timeDistance = formatDistanceToNow(created);
 
@@ -58,6 +91,13 @@ export default class TodoListItem extends React.Component {
             <span tabIndex="-1" role="button" className="description">
               {label}
             </span>
+            <Timer
+              created={created}
+              timer={timer}
+              startTimer={this.startTimer}
+              stopTimer={this.stopTimer}
+              done={done}
+            />
             <span className="created">{timeDistance}</span>
           </label>
           <button type="button" className="icon icon-edit" onClick={this.editTodo} aria-label="Edit task" />
@@ -79,9 +119,11 @@ TodoListItem.defaultProps = {
 TodoListItem.propTypes = {
   id: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
-  created: PropTypes.instanceOf(Date),
+  created: PropTypes.instanceOf(Date).isRequired,
   done: PropTypes.bool,
   onDeleted: PropTypes.func.isRequired,
   completeTodo: PropTypes.func.isRequired,
   editLabelTodo: PropTypes.func.isRequired,
+  timer: PropTypes.number.isRequired,
+  subTime: PropTypes.func.isRequired,
 };

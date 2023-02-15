@@ -19,7 +19,7 @@ const TodoList = ({ todos, onDeleted, completeTodo, editLabelTodo, subTime }) =>
           onDeleted={() => onDeleted(id)}
           completeTodo={() => completeTodo(id)}
           editLabelTodo={(text) => editLabelTodo(id, text)}
-          subTime={() => subTime(id)}
+          subTime={subTime}
         />
       );
     });

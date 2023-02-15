@@ -12,7 +12,6 @@ export default class App extends React.Component {
     super(props);
     this.state = {
       filter: 'all',
-      dateNow: new Date(),
       todoData: [
         {
           label: 'Wake up',
@@ -39,20 +38,15 @@ export default class App extends React.Component {
     };
   }
 
-  componentWillUnmount() {
-    clearInterval(this.interval);
-  }
-
-  subTime = (id) => {
+  subTime = (id, newTimer) => {
     this.setState(({ todoData }) => {
       const idx = todoData.findIndex((el) => el.id === id);
       const oldItem = todoData[idx];
-      const newValueTimer = oldItem.timer - 1;
+      const newValueTimer = newTimer;
       const newItem = { ...oldItem, timer: newValueTimer };
       const before = todoData.slice(0, idx);
       const after = todoData.slice(idx + 1);
       const newArray = [...before, newItem, ...after];
-
       return {
         todoData: newArray,
       };
@@ -65,7 +59,6 @@ export default class App extends React.Component {
       const before = todoData.slice(0, idx);
       const after = todoData.slice(idx + 1);
       const newArray = [...before, ...after];
-
       return {
         todoData: newArray,
       };
@@ -142,7 +135,7 @@ export default class App extends React.Component {
   };
 
   render() {
-    const { filter, todoData, dateNow } = this.state;
+    const { filter, todoData } = this.state;
     const completedTodoCount = todoData.filter((el) => !el.done).length;
 
     return (
@@ -156,7 +149,6 @@ export default class App extends React.Component {
             completeTodo={this.completeTodo}
             editLabelTodo={this.editLabelTodo}
             subTime={this.subTime}
-            dateNow={dateNow}
             onClickTimer={this.onClickTimer}
           />
           <Footer

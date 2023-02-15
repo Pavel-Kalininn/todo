@@ -3,6 +3,13 @@ import PropTypes from 'prop-types';
 import './timer.css';
 
 export default class Timer extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      timerId: null,
+    };
+  }
+
   timeToString = () => {
     const { timer } = this.props;
     const min = Math.floor(timer / 60);
@@ -11,19 +18,55 @@ export default class Timer extends React.Component {
   };
 
   componentDidUpdate(prevProps) {
-    const { stopTimer, done } = this.props;
-    if (done !== prevProps.done) {
-      stopTimer();
+    const { timer, done } = this.props;
+    const { timerId } = this.state;
+    if ((prevProps.timer !== timer && timer <= 0) || done) {
+      clearInterval(timerId);
     }
   }
 
-  render() {
-    const { startTimer, stopTimer, done, timer } = this.props;
+  componentWillUnmount() {
+    this.stopTimer();
+  }
 
+  startTimer = () => {
+    const { subTime, timer, id } = this.props;
+    const { timerId } = this.state;
+    let newTimer;
+    if (!timerId && timer > 0) {
+      this.setState({
+        timerId: setInterval(() => {
+          newTimer = this.props.timer - 1;
+          subTime(id, newTimer);
+        }, 1000),
+      });
+    }
+  };
+
+  stopTimer = () => {
+    const { timerId } = this.state;
+    clearInterval(timerId);
+    this.setState({ timerId: null });
+  };
+
+  render() {
+    const { done, timer } = this.props;
     return (
       <span className="timer">
-        <button className="timer-start" type="button" disabled={done || timer === 0} onClick={startTimer} name="true" />
-        <button className="timer-stop" type="button" disabled={done || timer === 0} onClick={stopTimer} name="false" />
+        <button
+          className="timer-start"
+          type="button"
+          disabled={done || timer === 0}
+          onClick={this.startTimer}
+          name="true"
+        />
+        <button
+          className="timer-stop"
+          type="button"
+          disabled={done || timer === 0}
+          onClick={this.stopTimer}
+          name="false"
+        />
         {this.timeToString()}
       </span>
     );
@@ -33,6 +76,4 @@ export default class Timer extends React.Component {
 Timer.propTypes = {
   timer: PropTypes.number.isRequired,
   done: PropTypes.bool.isRequired,
-  startTimer: PropTypes.func.isRequired,
-  stopTimer: PropTypes.func.isRequired,
 };

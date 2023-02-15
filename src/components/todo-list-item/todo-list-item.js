@@ -15,36 +15,6 @@ export default class TodoListItem extends React.Component {
     };
   }
 
-  componentDidUpdate(prevProps) {
-    const { timer, done } = this.props;
-    const { timerId } = this.state;
-    if ((prevProps.timer !== timer && timer <= 0) || done) {
-      clearInterval(timerId);
-    }
-  }
-
-  startTimer = () => {
-    const { subTime, timer } = this.props;
-    const { timerId } = this.state;
-    if (!timerId && timer > 0) {
-      this.setState({
-        timerId: setInterval(() => {
-          subTime();
-        }, 1000),
-      });
-    }
-  };
-
-  stopTimer = () => {
-    const { timerId } = this.state;
-    clearInterval(timerId);
-    this.setState({ timerId: null });
-  };
-
-  componentWillUnmount() {
-    this.stopTimer();
-  }
-
   onLabelChange = (evt) => {
     this.setState({
       labelState: evt.target.value,
@@ -79,7 +49,7 @@ export default class TodoListItem extends React.Component {
   };
 
   render() {
-    const { label, done, created, id, onDeleted, completeTodo, timer } = this.props;
+    const { label, done, created, id, onDeleted, completeTodo, timer, subTime } = this.props;
     const { labelState } = this.state;
     const timeDistance = formatDistanceToNow(created);
 
@@ -91,13 +61,7 @@ export default class TodoListItem extends React.Component {
             <span tabIndex="-1" role="button" className="description">
               {label}
             </span>
-            <Timer
-              created={created}
-              timer={timer}
-              startTimer={this.startTimer}
-              stopTimer={this.stopTimer}
-              done={done}
-            />
+            <Timer created={created} timer={timer} done={done} subTime={subTime} id={id} />
             <span className="created">{timeDistance}</span>
           </label>
           <button type="button" className="icon icon-edit" onClick={this.editTodo} aria-label="Edit task" />

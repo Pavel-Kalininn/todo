@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -7,158 +7,117 @@ import NewToDo from '../new-todo/new-todo.js';
 import TodoList from '../todo-list/todo-list.js';
 import Footer from '../footer/footer.js';
 
-export default class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      filter: 'all',
-      todoData: [
-        {
-          label: 'Wake up',
-          done: true,
-          created: new Date(2022, 12, 4),
-          id: uuidv4(),
-          timer: 1600,
-        },
-        {
-          label: 'Drink Coffee',
-          done: false,
-          created: new Date(2023, 1, 5),
-          id: uuidv4(),
-          timer: 3200,
-        },
-        {
-          label: 'Build App',
-          done: false,
-          created: new Date(2023, 1, 25),
-          id: uuidv4(),
-          timer: 300,
-        },
-      ],
-    };
-  }
-
-  subTime = (id, newTimer) => {
-    this.setState(({ todoData }) => {
-      const idx = todoData.findIndex((el) => el.id === id);
-      const oldItem = todoData[idx];
-      const newValueTimer = newTimer;
-      const newItem = { ...oldItem, timer: newValueTimer };
-      const before = todoData.slice(0, idx);
-      const after = todoData.slice(idx + 1);
-      const newArray = [...before, newItem, ...after];
-      return {
-        todoData: newArray,
-      };
-    });
-  };
-
-  deleteTodo = (id) => {
-    this.setState(({ todoData }) => {
-      const idx = todoData.findIndex((el) => el.id === id);
-      const before = todoData.slice(0, idx);
-      const after = todoData.slice(idx + 1);
-      const newArray = [...before, ...after];
-      return {
-        todoData: newArray,
-      };
-    });
-  };
-
-  addTodo = (text, timer) => {
-    const newTask = this.createTodo(text, timer);
-
-    this.setState(({ todoData }) => ({
-      todoData: [...todoData, newTask],
-    }));
-  };
-
-  deleteCompletedTodo = () => {
-    this.setState(({ todoData }) => ({
-      todoData: todoData.filter((el) => !el.done),
-    }));
-  };
-
-  completeTodo = (id) => {
-    this.setState(({ todoData }) => {
-      const idx = todoData.findIndex((el) => el.id === id);
-      const oldItem = todoData[idx];
-      const newItem = { ...oldItem, done: !oldItem.done };
-      const before = todoData.slice(0, idx);
-      const after = todoData.slice(idx + 1);
-      const newArray = [...before, newItem, ...after];
-
-      return {
-        todoData: newArray,
-      };
-    });
-  };
-
-  editLabelTodo = (id, text) => {
-    this.setState(({ todoData }) => {
-      const idx = todoData.findIndex((el) => el.id === id);
-      const oldItem = todoData[idx];
-      const newItem = { ...oldItem, label: text };
-      const before = todoData.slice(0, idx);
-      const after = todoData.slice(idx + 1);
-      const newArray = [...before, newItem, ...after];
-
-      return {
-        todoData: newArray,
-      };
-    });
-  };
-
-  createTodo(label, timer) {
-    return {
-      label,
-      done: false,
-      created: new Date(),
+function App() {
+  const [filter, setFilter] = useState('all');
+  const [todoData, setTodoData] = useState([
+    {
+      label: 'Wake up',
+      done: true,
+      created: new Date(2022, 12, 4),
       id: uuidv4(),
-      timer,
-    };
-  }
+      timer: 1600,
+    },
+    {
+      label: 'Drink Coffee',
+      done: false,
+      created: new Date(2023, 1, 5),
+      id: uuidv4(),
+      timer: 3200,
+    },
+    {
+      label: 'Build App',
+      done: false,
+      created: new Date(2023, 1, 25),
+      id: uuidv4(),
+      timer: 300,
+    },
+  ]);
 
-  displayFiltered(category) {
-    const { todoData } = this.state;
+  const subTime = (id) => {
+    const idx = todoData.findIndex((el) => el.id === id);
+    const oldItem = todoData[idx];
+    const newValueTimer = oldItem.timer - 1;
+    const newItem = { ...oldItem, timer: newValueTimer };
+    const before = todoData.slice(0, idx);
+    const after = todoData.slice(idx + 1);
+    setTodoData([...before, newItem, ...after]);
+  };
+
+  const deleteTodo = (id) => {
+    const idx = todoData.findIndex((el) => el.id === id);
+    const before = todoData.slice(0, idx);
+    const after = todoData.slice(idx + 1);
+    setTodoData([...before, ...after]);
+  };
+
+  const addTodo = (text, timer) => {
+    const newTask = createTodo(text, timer);
+    setTodoData([...todoData, newTask]);
+  };
+
+  const deleteCompletedTodo = () => {
+    setTodoData(todoData.filter((el) => !el.done));
+  };
+
+  const completeTodo = (id) => {
+    const idx = todoData.findIndex((el) => el.id === id);
+    const oldItem = todoData[idx];
+    const newItem = { ...oldItem, done: !oldItem.done };
+    const before = todoData.slice(0, idx);
+    const after = todoData.slice(idx + 1);
+    setTodoData([...before, newItem, ...after]);
+  };
+
+  const editLabelTodo = (id, text) => {
+    const idx = todoData.findIndex((el) => el.id === id);
+    const oldItem = todoData[idx];
+    const newItem = { ...oldItem, label: text };
+    const before = todoData.slice(0, idx);
+    const after = todoData.slice(idx + 1);
+    setTodoData([...before, newItem, ...after]);
+  };
+
+  const createTodo = (label, timer) => ({
+    label,
+    done: false,
+    created: new Date(),
+    id: uuidv4(),
+    timer,
+  });
+
+  const displayFiltered = (category) => {
     if (category === 'all') {
       return todoData;
     }
-    console.log(category);
     return todoData.filter((el) => el.done.toString() === category);
-  }
-
-  chooseFilter = (category) => {
-    this.setState({
-      filter: category,
-    });
   };
 
-  render() {
-    const { filter, todoData } = this.state;
-    const completedTodoCount = todoData.filter((el) => !el.done).length;
+  const chooseFilter = (category) => {
+    setFilter(category);
+  };
+  const completedTodoCount = todoData.filter((el) => !el.done).length;
 
-    return (
-      <div className="todoapp">
-        <AppHeader />
-        <NewToDo addTodo={this.addTodo} />
-        <section className="main">
-          <TodoList
-            todos={this.displayFiltered(filter)}
-            onDeleted={this.deleteTodo}
-            completeTodo={this.completeTodo}
-            editLabelTodo={this.editLabelTodo}
-            subTime={this.subTime}
-            onClickTimer={this.onClickTimer}
-          />
-          <Footer
-            done={completedTodoCount}
-            chooseFilter={this.chooseFilter}
-            filter={filter}
-            deleteCompletedTodo={this.deleteCompletedTodo}
-          />
-        </section>
-      </div>
-    );
-  }
+  return (
+    <div className="todoapp">
+      <AppHeader />
+      <NewToDo addTodo={addTodo} />
+      <section className="main">
+        <TodoList
+          todos={displayFiltered(filter)}
+          onDeleted={deleteTodo}
+          completeTodo={completeTodo}
+          editLabelTodo={editLabelTodo}
+          subTime={subTime}
+        />
+        <Footer
+          done={completedTodoCount}
+          chooseFilter={chooseFilter}
+          filter={filter}
+          deleteCompletedTodo={deleteCompletedTodo}
+        />
+      </section>
+    </div>
+  );
 }
+
+export default App;

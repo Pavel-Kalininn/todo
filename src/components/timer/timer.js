@@ -1,77 +1,51 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+
 import './timer.css';
+import useInterval from '../../hooks/useInterval/useInterval';
 
-export default class Timer extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      timerId: null,
-    };
-  }
+function Timer({ done, timer, subTime, id }) {
+  const [isActive, setIsActive] = useState(false);
 
-  timeToString = () => {
-    const { timer } = this.props;
+  const timeToString = () => {
     const min = Math.floor(timer / 60);
     const sec = timer % 60;
     return `${min}:${sec.toString().padStart(2, '0')}`;
   };
 
-  componentDidUpdate(prevProps) {
-    const { timer, done } = this.props;
-    const { timerId } = this.state;
-    if ((prevProps.timer !== timer && timer <= 0) || done) {
-      clearInterval(timerId);
+  useEffect(() => {
+    if (timer <= 0 || done) {
+      stopTimer();
     }
-  }
+  }, [timer]);
 
-  componentWillUnmount() {
-    this.stopTimer();
-  }
-
-  startTimer = () => {
-    const { subTime, timer, id } = this.props;
-    const { timerId } = this.state;
-    let newTimer;
-    if (!timerId && timer > 0) {
-      this.setState({
-        timerId: setInterval(() => {
-          newTimer = this.props.timer - 1;
-          subTime(id, newTimer);
-        }, 1000),
-      });
+  const startTimer = () => {
+    if (!isActive && timer > 0) {
+      setIsActive(true);
     }
   };
 
-  stopTimer = () => {
-    const { timerId } = this.state;
-    clearInterval(timerId);
-    this.setState({ timerId: null });
+  useInterval(
+    () => {
+      subTime(id);
+    },
+    isActive ? 1000 : null
+  );
+
+  const stopTimer = () => {
+    setIsActive(false);
   };
 
-  render() {
-    const { done, timer } = this.props;
-    return (
-      <span className="timer">
-        <button
-          className="timer-start"
-          type="button"
-          disabled={done || timer === 0}
-          onClick={this.startTimer}
-          name="true"
-        />
-        <button
-          className="timer-stop"
-          type="button"
-          disabled={done || timer === 0}
-          onClick={this.stopTimer}
-          name="false"
-        />
-        {this.timeToString()}
-      </span>
-    );
-  }
+  return (
+    <span className="timer">
+      <button className="timer-start" type="button" disabled={done || timer === 0} onClick={startTimer} name="true" />
+      <button className="timer-stop" type="button" disabled={done || timer === 0} onClick={stopTimer} name="false" />
+      {timeToString()}
+    </span>
+  );
 }
+
+export default Timer;
 
 Timer.propTypes = {
   timer: PropTypes.number.isRequired,
